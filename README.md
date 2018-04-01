@@ -1,4 +1,4 @@
-*Eric Diep, CS 725 - Homework 9*
+**Eric Diep, CS 725 - Homework 9**
 
 # Introduction
 
