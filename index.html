@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+  .overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+  
+.axis--x path {
+  <!--display: none;-->
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+</style>
+<body>
+  <div>
+    <select id="countrySelection" onchange="updateCountry()">
+      <option value="bolivia">Bolivia</option>
+      <option value="brazil">Brazil</option>
+      <option value="chile">Chile</option>
+      <option value="colombia">Colombia</option>
+      <option value="ecuador">Ecuador</option>
+      <option value="guyana">Guyana</option>
+      <option value="paraguay">Paraguay</option>
+      <option value="peru">Peru</option>
+      <option value="suriname">Suriname</option>
+      <option value="uruguay">Uruguay</option>
+      <option value="venezuela">Venezuela</option>
+    </select>
+  </div>
+<!-- load the d3.js library -->    	
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script> 
+<script>
+  //Select
+  //var select = d3.select("#countries").property("value");
+  
+  //Graph
+	var margin = {top: 20, right: 20, bottom: 30, left: 50},
+      width = 900 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+  
+  var svg = d3.select("body").append("svg")
+    	.attr("width", 960)
+  		.attr("height", 500)
+  		.append("g")
+  		.attr("transform", "translate(" + margin.left +", "+margin.top+")");
+  
+  var parseTime = d3.timeParse("%Y"),
+      bisectDate = d3.bisector(function(d) { return d.date; }).left;
+  
+  var x = d3.scaleTime().rangeRound([0, width]);
+  
+  var y = d3.scaleLinear().rangeRound([height, 0]);
+  
+  var z = d3.scaleOrdinal(d3.schemeCategory10);
+  
+  var line = d3.line()
+  		//.curve(d3.curveBasis) //makes a smooth line
+  		.x(function(d) {return x(d.date);})
+  		.y(function(d) {return y(d.rates);});
+  /*
+  d3.csv("bolivia.csv", function(d){
+    d.date = parseTime(d.date);
+    d.sanitation = +d.sanitation;
+    return d;
+  }, function(error, data){
+    if (error) throw error;
+    
+    x.domain(d3.extent(data, function(d){return d.date;}));
+    y.domain(d3.extent(data, function(d){return d.sanitation;}));
+    
+    svg.append("g")
+    		.attr("transform", "translate(0,"+height+")")
+    		.call(d3.axisBottom(x))
+    		.select(".domain");
+    
+    svg.append("g")
+    		.call(d3.axisLeft(y));
+    
+    svg.append("path")
+    		.datum(data)
+    		.attr("fill", "none")
+    		.attr("stroke", "steelblue")
+    		.attr("stroke-linejoin", "round")
+      	.attr("stroke-linecap", "round")
+      	.attr("stroke-width", 1.5)
+      	.attr("d", line); 
+    
+    var focus = svg.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+    
+    focus.append("circle")
+      .attr("r", 4.5);
+
+  focus.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+    svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function() { focus.style("display", null); })
+      .on("mouseout", function() { focus.style("display", "none"); })
+      .on("mousemove", mousemove);
+
+  function mousemove() {
+    var x0 = x.invert(d3.mouse(this)[0]),
+        i = bisectDate(data, x0, 1),
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+    focus.attr("transform", "translate(" + x(d.date) + "," + y(d.sanitation) + ")");
+    focus.select("text").text(d.sanitation);
+  }
+      
+  });
+  */
+  
+  d3.csv("bolivia.csv", type, function(error,data){
+    if(error) throw error;
+    
+    var categories = data.columns.slice(1).map(function(id){
+      return {
+        id: id,
+        values: data.map(function(d){
+          return {date: d.date, rates: d[id]};
+        })
+      }
+    });
+    
+    x.domain(d3.extent(data, function(d){return d.date;}));
+    
+    y.domain([
+      d3.min(categories, function(c){return d3.min(c.values, function(d){return d.rates});}),
+      d3.max(categories, function(c){return d3.max(c.values, function(d){return d.rates});})
+    ]);
+    
+    z.domain(categories.map(function(c){return c.id;}));
+    
+    svg.append("g")
+    	.attr("class", "x-axis")
+    	.attr("transform", "translate(0,"+height+")")
+    	.call(d3.axisBottom(x));
+    
+    svg.append("text")
+    	.attr("x", width/2)
+    	.attr("y", margin.bottom+450)
+    	.attr("text-anchor", "middle")
+      .text("Years")
+    
+    svg.append("g")
+    	.attr("class", "y-axis")
+    	.call(d3.axisLeft(y))
+    	.append("text")
+    	.attr("transform", "rotate(-90)")
+    	.attr("y", 10)
+    	.attr("x", -6)
+    	.attr("fill", "#000000")
+    	.text("Percentage of Population(%)");
+    
+    svg.append("text")
+    	.attr("x", width/2)
+    	.attr("y", 5 - margin.top/2)
+    	.attr("text-anchor", "middle")
+    	.style("font-size", "16px")
+    	.text("Correlation of Access to Basic Drinking Water and Sanitation to Mortality caused by Diarrhoeal Diseases")
+    
+    var category = svg.selectAll(".category")
+    	.data(categories)
+    	.enter().append("g")
+    	.attr("class", "category")
+    
+    category.append("path")
+    		.attr("class", "line")
+    		.attr("d", function(d){return line(d.values);})
+    		.style("stroke", function(d){return z(d.id);});
+    
+    category.append("text")
+    		.attr("class", "label")
+    		.datum(function(d){return {id: d.id, value: d.values[d.values.length - 1]};})
+    		.attr("transform", function(d){return "translate("+x(d.value.date)+","+y(d.value.rates)+")";})
+    		//.attr("x", 5)
+    		//.attr("dy", "0.75em")
+    		.style("font", "10px sans-serif")
+    		.text(function(d){return d.id;});
+
+    var focus = svg.append("g")
+    		.attr("class", "focus")
+    		.style("display", "none");
+    
+    /*focus.append("line")
+    		.attr("class", "y")
+    		.attr("stroke", "black")
+    		//.attr("stroke-dasharray", "3,3")
+    		.style("opacity", 0.5)
+    		.attr("y1", 0)
+    		.attr("y2", height);*/
+
+    for(var i=0; i < data.length; i++){
+      focus.append("g")
+      		.attr("class", "focus"+i)
+      		.append("circle")
+      		.attr("class", "highlight")
+      		.style("stroke", "red")
+      		.style("fill", "red")
+      		//.attr("transform", "translate("+x(data[i].date)+","+y(data[i].rates)+")")
+      		.attr("r", 2);
+      
+      svg.select(".focus"+i)
+      		.append("text")
+      		//.attr("transform", "translate("+x(data[i].date)+","+y(data[i].rates)+")")
+      		.attr("x", 30)
+      		.attr("dy", ".35em");
+    }
+    /*
+    focus.append("circle")
+      	.attr("r", 4.5);
+
+  	focus.append("text")
+      	.attr("x", 9)
+      	.attr("dy", ".35em");
+    */
+
+  	svg.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .on("mouseover", function() { focus.style("display", null); })
+        .on("mouseout", function() { focus.style("display", "none"); })
+        .on("mousemove", mousemove);
+
+  function mousemove() {
+    var x0 = x.invert(d3.mouse(this)[0]);
+    var i = bisectDate(data, x0, 1),
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+    //focus.attr("transform", "translate(" + x(d.date) + "," + y(d.drinking) + ")");
+    //focus.select("text").text(d.drinking);
+
+    var series = [
+      {date: data[i].date, value: data[i].drinking},
+      {date: data[i].date, value: data[i].sanitation},
+      {date: data[i].date, value: data[i].diarrhoea}
+    ];
+    
+    for(var i=0; i < series.length; i++){
+      var selectedFocus = svg.selectAll(".focus"+i);
+      selectedFocus.attr("transform", "translate("+x(series[i].date)+","+y(series[i].value)+")");
+      selectedFocus.select("text").text(series[i].value);
+    }
+  }
+ 
+  });
+  
+  function updateCountry(){
+    var country = d3.select("#countrySelection").property("value");
+    //console.log(country);
+    d3.csv(country+".csv",type,function(error,data){
+      if(error) throw error;
+      
+      var categories = data.columns.slice(1).map(function(id){
+      return {
+        id: id,
+        values: data.map(function(d){
+          return {date: d.date, rates: d[id]};
+        })
+      }
+    });
+    
+    x.domain(d3.extent(data, function(d){return d.date;}));
+    
+    y.domain([
+      d3.min(categories, function(c){return d3.min(c.values, function(d){return d.rates});}),
+      d3.max(categories, function(c){return d3.max(c.values, function(d){return d.rates});})
+    ]);
+    
+    //z.domain(categories.map(function(c){return c.id;}));
+      
+      var svg = d3.select("body");
+      
+      //console.log(categories);
+      
+      svg.selectAll(".line").data(categories).attr("d", function(d){return line(d.values);}).transition().duration(750);
+      
+      svg.select(".label").attr("transform", function(d){return "translate("+x(d.value.date)+","+y(d.value.rates+30)+")";}).transition().duration(750);
+      
+      svg.select(".y-axis").call(d3.axisLeft(y)).transition().duration(750);  
+    });
+  }
+  
+  function type(d, _, columns){
+    d.date = parseTime(d.date);
+    for (var i = 1, n = columns.length, c; i < n; ++i)d[c = columns[i]] = +d[c];
+    return d;
+  }
+  
+  
+  
+  
+
+</script>
+</body>
