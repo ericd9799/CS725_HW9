@@ -207,8 +207,9 @@
     		.style("opacity", 0.5)
     		.attr("y1", 0)
     		.attr("y2", height);*/
-
-    for(var i=0; i < data.length; i++){
+    
+    //Eric Diep: Set to be less than 3 because there are only 3 categories
+    for(var i=0; i < 3; i++){
       focus.append("g")
       		.attr("class", "focus"+i)
       		.append("circle")
