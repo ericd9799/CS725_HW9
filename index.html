@@ -23,6 +23,7 @@
 
 </style>
 <body>
+    Select a country:
   <div>
     <select id="countrySelection" onchange="updateCountry()">
       <option value="bolivia">Bolivia</option>
@@ -46,9 +47,9 @@
   //var select = d3.select("#countries").property("value");
   
   //Graph
-	var margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 900 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+  var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 900 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
   
   var svg = d3.select("body").append("svg")
     	.attr("width", 960)
@@ -59,12 +60,14 @@
   var parseTime = d3.timeParse("%Y"),
       bisectDate = d3.bisector(function(d) { return d.date; }).left;
   
+  //Create variables to scale values
   var x = d3.scaleTime().rangeRound([0, width]);
   
   var y = d3.scaleLinear().rangeRound([height, 0]);
   
   var z = d3.scaleOrdinal(d3.schemeCategory10);
   
+  // Create variable to draw line
   var line = d3.line()
   		//.curve(d3.curveBasis) //makes a smooth line
   		.x(function(d) {return x(d.date);})
@@ -128,6 +131,7 @@
   });
   */
   
+  //Read from csv
   d3.csv("bolivia.csv", type, function(error,data){
     if(error) throw error;
     
@@ -149,52 +153,59 @@
     
     z.domain(categories.map(function(c){return c.id;}));
     
+    //Create x-axis
     svg.append("g")
-    	.attr("class", "x-axis")
-    	.attr("transform", "translate(0,"+height+")")
-    	.call(d3.axisBottom(x));
+        .attr("class", "x-axis")
+        .attr("transform", "translate(0,"+height+")")
+        .call(d3.axisBottom(x));
     
+    //Create x-axis label
     svg.append("text")
-    	.attr("x", width/2)
-    	.attr("y", margin.bottom+450)
-    	.attr("text-anchor", "middle")
-      .text("Years")
+        .attr("x", width/2)
+        .attr("y", margin.bottom+450)
+        .attr("text-anchor", "middle")
+        .text("Years")
     
+    //Create y-axis
     svg.append("g")
-    	.attr("class", "y-axis")
-    	.call(d3.axisLeft(y))
-    	.append("text")
-    	.attr("transform", "rotate(-90)")
-    	.attr("y", 10)
-    	.attr("x", -6)
-    	.attr("fill", "#000000")
-    	.text("Percentage of Population(%)");
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(y))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 10)
+        .attr("x", -6)
+        .attr("fill", "#000000")
+        .text("Percentage of Population(%)");
     
+    //Create y-axis label
     svg.append("text")
-    	.attr("x", width/2)
-    	.attr("y", 5 - margin.top/2)
-    	.attr("text-anchor", "middle")
-    	.style("font-size", "16px")
-    	.text("Correlation of Access to Basic Drinking Water and Sanitation to Mortality caused by Diarrhoeal Diseases")
+        .attr("x", width/2)
+        .attr("y", 5 - margin.top/2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .text("Correlation of Access to Basic Drinking Water and Sanitation to Mortality caused by Diarrhoeal Diseases")
     
+    //Create variable for each column (category)
     var category = svg.selectAll(".category")
-    	.data(categories)
-    	.enter().append("g")
-    	.attr("class", "category")
+        .data(categories)
+        .enter().append("g")
+        .attr("class", "category")
     
+    //Draw line
     category.append("path")
-    		.attr("class", "line")
-    		.attr("d", function(d){return line(d.values);})
-    		.style("stroke", function(d){return z(d.id);});
-    
+        .attr("class", "line")
+        .attr("d", function(d){return line(d.values);})
+        .style("stroke", function(d){return z(d.id);});
+   
+    //Label line according to column name 
     category.append("text")
-    		.attr("class", "label")
-    		.datum(function(d){return {id: d.id, value: d.values[d.values.length - 1]};})
-    		.attr("transform", function(d){return "translate("+x(d.value.date)+","+y(d.value.rates)+")";})
-    		//.attr("x", 5)
-    		//.attr("dy", "0.75em")
-    		.style("font", "10px sans-serif")
-    		.text(function(d){return d.id;});
+        .attr("class", "label")
+        .datum(function(d){return {id: d.id, value: d.values[d.values.length - 1]};})
+        .attr("transform", function(d){return "translate("+x(d.value.date)+","+y(d.value.rates)+")";})
+        //.attr("x", 5)
+        //.attr("dy", "0.75em")
+        .style("font", "10px sans-serif")
+        .text(function(d){return d.id;});
 
     var focus = svg.append("g")
     		.attr("class", "focus")
@@ -208,22 +219,24 @@
     		.attr("y1", 0)
     		.attr("y2", height);*/
     
-    //Eric Diep: Set to be less than 3 because there are only 3 categories
+    //Set to be less than 3 because there are only 3 categories.
+    //Creating group to capture mouse movement for each line. 3 groups created for each category.
     for(var i=0; i < 3; i++){
-      focus.append("g")
-      		.attr("class", "focus"+i)
-      		.append("circle")
-      		.attr("class", "highlight")
-      		.style("stroke", "red")
-      		.style("fill", "red")
-      		//.attr("transform", "translate("+x(data[i].date)+","+y(data[i].rates)+")")
-      		.attr("r", 2);
+        focus.append("g")
+  	        .attr("class", "focus"+i)
+      		
+  	    focus.append("circle")
+          	.attr("class", "highlight")
+          	.style("stroke", "red")
+          	.style("fill", "red")
+          	//.attr("transform", "translate("+x(data[i].date)+","+y(data[i].rates)+")")
+          	.attr("r", 2);
       
-      svg.select(".focus"+i)
-      		.append("text")
-      		//.attr("transform", "translate("+x(data[i].date)+","+y(data[i].rates)+")")
-      		.attr("x", 30)
-      		.attr("dy", ".35em");
+        svg.select(".focus"+i)
+          	.append("text")
+          	//.attr("transform", "translate("+x(data[i].date)+","+y(data[i].rates)+")")
+          	.attr("x", 30)
+          	.attr("dy", ".35em");
     }
     /*
     focus.append("circle")
@@ -234,6 +247,7 @@
       	.attr("dy", ".35em");
     */
 
+    //Create object to capture mouse movement
   	svg.append("rect")
         .attr("class", "overlay")
         .attr("width", width)
@@ -242,31 +256,33 @@
         .on("mouseout", function() { focus.style("display", "none"); })
         .on("mousemove", mousemove);
 
-  function mousemove() {
-    var x0 = x.invert(d3.mouse(this)[0]);
-    var i = bisectDate(data, x0, 1),
-        d0 = data[i - 1],
-        d1 = data[i],
-        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-
-    //focus.attr("transform", "translate(" + x(d.date) + "," + y(d.drinking) + ")");
-    //focus.select("text").text(d.drinking);
-
-    var series = [
-      {date: data[i].date, value: data[i].drinking},
-      {date: data[i].date, value: data[i].sanitation},
-      {date: data[i].date, value: data[i].diarrhoea}
-    ];
-    
-    for(var i=0; i < series.length; i++){
-      var selectedFocus = svg.selectAll(".focus"+i);
-      selectedFocus.attr("transform", "translate("+x(series[i].date)+","+y(series[i].value)+")");
-      selectedFocus.select("text").text(series[i].value);
+    //Function to capture mouse movement, and translate to display points and text
+    function mousemove() {
+        var x0 = x.invert(d3.mouse(this)[0]);
+        var i = bisectDate(data, x0, 1),
+            d0 = data[i - 1],
+            d1 = data[i],
+            d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+        
+        //focus.attr("transform", "translate(" + x(d.date) + "," + y(d.drinking) + ")");
+        //focus.select("text").text(d.drinking);
+        
+        var series = [
+          {date: data[i].date, value: data[i].drinking},
+          {date: data[i].date, value: data[i].sanitation},
+          {date: data[i].date, value: data[i].diarrhoea}
+        ];
+        
+        for(var i=0; i < series.length; i++){
+          var selectedFocus = svg.selectAll(".focus"+i);
+          selectedFocus.attr("transform", "translate("+x(series[i].date)+","+y(series[i].value)+")");
+          selectedFocus.select("text").text(series[i].value);
+        }
     }
-  }
  
   });
   
+  //Function to update chart depending on selection
   function updateCountry(){
     var country = d3.select("#countrySelection").property("value");
     //console.log(country);
