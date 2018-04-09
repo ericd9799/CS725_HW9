@@ -25,3 +25,4 @@ Water is essential to human survival. Having access to water is nice, but having
 - [d3-time-format](https://github.com/d3/d3-time-format)
 - [Multi-Series Line Chart by Mike Bostock](https://bl.ocks.org/mbostock/3884955)
 - [Update data with button press by d3noob](http://bl.ocks.org/d3noob/7030f35b72de721622b8)
+- [Multi-Series Line Chart with Multi-Mouseover by Eric Bunch](http://bl.ocks.org/eric-bunch/0bdef4942ac085a93fa6bd31452cd55c)
