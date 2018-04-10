@@ -1,5 +1,7 @@
 **Eric Diep, CS 725 - Homework 9**
 
+[CS 725 - Homework 9 Visualization](http://www.cs.odu.edu/~ediep/cs725/CS725-HW9/)
+
 # Introduction
 Water is essential to human survival. Having access to water is nice, but having access to clean water is better. Without clean water, the opportunity for diseases and infection increases. Most importantly, children growing up should have access to clean water because their immune system is still developing. When there is no access to clean drinking water or sanitation, diarrhoeal diseases is the most common killer among children. According to UNICEF, in 2016, diarrhoeal diseases was the cause of approximately 8% of all deaths among children under 5. The question I attempt to address with a visualization is can we identify correlation between having access to basic drinking water and sanitation, and mortality for children under 5 years caused by diarrhoeal diseases in South American countries? 
 
