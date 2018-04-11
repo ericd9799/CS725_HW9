@@ -53,7 +53,7 @@
   
   var svg = d3.select("body").append("svg")
     	.attr("width", 960)
-  		.attr("height", 500)
+  		.attr("height", 600)
   		.append("g")
   		.attr("transform", "translate(" + margin.left +", "+margin.top+")");
   
@@ -182,8 +182,17 @@
         .attr("x", width/2)
         .attr("y", 5 - margin.top/2)
         .attr("text-anchor", "middle")
-        .style("font-size", "16px")
+        .style("font", "16px sans-serif")
         .text("Access to Basic Drinking Water / Sanitation in Rural Areas vs. Mortality caused by Diarrhoeal Diseases in Children < 5 Years")
+       
+    //Create source label 
+    svg.append("g").attr("class", "source").append("text")
+    	.attr("x", margin.left-70)
+    	.attr("y", margin.bottom+465)
+    	.attr("text-anchor", "start")
+    	.style("font", "15px sans-serif")
+    	.style("fill", "#808080")
+    	.text("Source: World Health Organization")
     
     //Create variable for each column (category)
     var category = svg.selectAll(".category")
@@ -202,9 +211,9 @@
         .attr("class", "label")
         .datum(function(d){return {id: d.id, value: d.values[d.values.length - 1]};})
         .attr("transform", function(d){return "translate("+x(d.value.date)+","+y(d.value.rates)+")";})
-        //.attr("x", 5)
-        //.attr("dy", "0.75em")
-        .style("font", "10px sans-serif")
+        .attr("x", 5)
+        .attr("dy", "0.75em")
+        .style("font", "13px sans-serif")
         .text(function(d){return d.id;});
 
     var focus = svg.append("g")
